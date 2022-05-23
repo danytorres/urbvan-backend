@@ -1,0 +1,32 @@
+version: '3.4'
+
+services:
+  prueba:
+    container_name: prueba
+    build: .
+    volumes:
+      - ./src:/app
+    ports:
+      - 8000:8000
+    command: >
+      sh -c "python manage.py makemigrations && python manage.py migrate && python manage.py adminuser && gunicorn --bind 0.0.0.0:8000 --workers 5 urbvan.wsgi"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=mydb-dev
+      - DB_USER=vinhle
+      - DB_PASS=password
+      - DEBUG=False
+      - DJANGO_SUPERUSER_USERNAME=admin
+      - DJANGO_SUPERUSER_PASSWORD=password123
+      - DJANGO_SUPERUSER_EMAIL=admin@example.com
+      - SECRET_KEY="django-insecure-#&3to56ub244&13sw-*=nxv$$p@d#+jw)3f%bmd%u^1lp8jfqv1"
+    depends_on:
+      - db
+  db:
+    image: postgres:13-alpine
+    environment:
+      - POSTGRES_DB=mydb-dev
+      - POSTGRES_USER=vinhle
+      - POSTGRES_PASSWORD=password
+    expose:
+      - "5432"
